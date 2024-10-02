@@ -10,9 +10,15 @@ const PostDetail = () => {
   const [likes, setLikes] = useState(0);  // 좋아요 수 상태
   const [liked, setLiked] = useState(false);  // 좋아요 여부 상태
   const navigate = useNavigate();  // 페이지 이동을 위한 navigate 함수
+  const userId = 1;  // 사용자 ID (임시로 고정된 값 사용)
 
   // 게시글 및 댓글 불러오기
   useEffect(() => {
+    if (!id) {
+      console.error("Post ID is missing");
+      return;
+    }
+
     // 게시글 불러오기
     axios.get(`http://localhost:8080/api/posts/${id}`)
       .then(response => {
@@ -35,19 +41,23 @@ const PostDetail = () => {
   }, [id]);
 
   // 좋아요 버튼 클릭 시
-  const handleLike = () => {
-    const newLikedStatus = !liked;
-    setLiked(newLikedStatus);
+const handleLike = () => {
+  const newLikedStatus = !liked;
+  setLiked(newLikedStatus);
 
-    const updatedLikes = newLikedStatus ? likes + 1 : likes - 1;
-    setLikes(updatedLikes);
+  const updatedLikes = newLikedStatus ? likes + 1 : likes - 1;
+  setLikes(updatedLikes);
 
-    // 백엔드에 좋아요 상태 업데이트
-    axios.post(`http://localhost:8080/api/posts/${id}/like`, { liked: newLikedStatus })
-      .catch(error => {
-        console.error("좋아요 업데이트 중 오류가 발생했습니다.", error);
-      });
-  };
+  // 백엔드에 좋아요 상태 업데이트
+  axios.post(`http://localhost:8080/api/posts/${id}/like`, {
+    userId: 1,  // 고정된 사용자 ID 또는 동적으로 받은 사용자 ID
+    liked: newLikedStatus
+  })
+  .catch(error => {
+    console.error("좋아요 업데이트 중 오류가 발생했습니다.", error);
+  });
+  
+};
 
   // 게시글 수정 함수
   const handleEdit = () => {
@@ -75,7 +85,7 @@ const PostDetail = () => {
 
     const newCommentData = {
       content: newComment,
-      userId: 1  // 사용자 ID는 고정값으로 사용하거나 로그인한 사용자 정보로 대체 가능
+      userId: userId  // 사용자 ID는 고정값으로 사용하거나 로그인한 사용자 정보로 대체 가능
     };
 
     // 새로운 댓글을 서버에 전송
