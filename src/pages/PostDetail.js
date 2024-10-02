@@ -7,6 +7,8 @@ const PostDetail = () => {
   const [post, setPost] = useState(null);  // 게시글 상태
   const [comments, setComments] = useState([]);  // 댓글 상태
   const [newComment, setNewComment] = useState('');  // 새로운 댓글 상태
+  const [likes, setLikes] = useState(0);  // 좋아요 수 상태
+  const [liked, setLiked] = useState(false);  // 좋아요 여부 상태
   const navigate = useNavigate();  // 페이지 이동을 위한 navigate 함수
 
   // 게시글 및 댓글 불러오기
@@ -15,6 +17,8 @@ const PostDetail = () => {
     axios.get(`http://localhost:8080/api/posts/${id}`)
       .then(response => {
         setPost(response.data);
+        setLikes(response.data.likes);  // 게시글의 좋아요 수 설정
+        setLiked(response.data.liked);  // 사용자가 좋아요를 눌렀는지 여부 설정
       })
       .catch(error => {
         console.error("게시글을 불러오는 중 오류가 발생했습니다.", error);
@@ -29,6 +33,21 @@ const PostDetail = () => {
         console.error("댓글을 불러오는 중 오류가 발생했습니다.", error);
       });
   }, [id]);
+
+  // 좋아요 버튼 클릭 시
+  const handleLike = () => {
+    const newLikedStatus = !liked;
+    setLiked(newLikedStatus);
+
+    const updatedLikes = newLikedStatus ? likes + 1 : likes - 1;
+    setLikes(updatedLikes);
+
+    // 백엔드에 좋아요 상태 업데이트
+    axios.post(`http://localhost:8080/api/posts/${id}/like`, { liked: newLikedStatus })
+      .catch(error => {
+        console.error("좋아요 업데이트 중 오류가 발생했습니다.", error);
+      });
+  };
 
   // 게시글 수정 함수
   const handleEdit = () => {
@@ -80,6 +99,14 @@ const PostDetail = () => {
     <div>
       <h1>{post.title}</h1>
       <p>{post.content}</p>
+
+      {/* 좋아요 버튼 */}
+      <div>
+        <button onClick={handleLike}>
+          {liked ? '❤️' : '🤍'} {/* 좋아요 여부에 따라 하트 모양 변경 */}
+        </button>
+        <span>{likes} Likes</span> {/* 좋아요 수 표시 */}
+      </div>
 
       {/* 수정 버튼 */}
       <button onClick={handleEdit}>글 수정</button>
