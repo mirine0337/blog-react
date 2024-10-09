@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';  // useNavigate 훅을 사용하
 
 const Blog = () => {
   const [title, setTitle] = useState('');  // 새 글의 제목 상태
-  const [content, setContent] = useState('');  // 새 글의 내용 상태
+  const [content, setContent] = useState('');  // 새 글의 내용  
   const navigate = useNavigate();  // 페이지 이동을 위한 navigate 함수
 
   // userId를 고정된 값으로 설정
@@ -17,11 +17,11 @@ const Blog = () => {
     // 입력된 글 데이터를 서버로 POST 요청 전송
     const newPost = {
       title: title,       // 입력된 제목
-      content: content,   // 입력된 내용
-      userId: userId      // 고정된 userId 사용
+      content: content    // 입력된 내용 (userId는 URL로 보냄)
     };
 
-    axios.post('http://localhost:8080/api/posts', newPost)  // 백엔드로 POST 요청 전송
+    // userId를 쿼리 파라미터로 포함하여 요청
+    axios.post(`http://localhost:8080/api/posts?userId=${userId}`, newPost)  // 백엔드로 POST 요청 전송
       .then(response => {
         console.log('Post created:', response.data);
         setTitle('');  // 제목 입력 필드 초기화
